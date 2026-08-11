@@ -1,0 +1,21 @@
+{
+  "name": "@sistem-klinik/database",
+  "version": "1.0.0",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "development": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@sistem-klinik/config": "*",
+    "mysql2": "^3.6.5"
+  }
+}
