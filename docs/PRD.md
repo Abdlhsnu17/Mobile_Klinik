@@ -140,7 +140,8 @@ peningkatan peran hanya dapat dilakukan `admin` lewat modul Pengguna.
 | Kerahasiaan data | Data pasien dan rekam medis hanya dapat diakses role yang berwenang; unggahan dokumen divalidasi tipe file |
 | Ketersediaan | Backend memiliki fallback JSON lokal bila database MySQL tidak tersedia sementara |
 | Performa | Cache Redis opsional untuk data yang sering diakses (data master, antrian) |
-| Skalabilitas | Arsitektur three-tier (Next.js – Express – MySQL) memungkinkan scaling frontend/backend terpisah |
+| Skalabilitas | Arsitektur three-tier (Flutter – Express – MySQL) memungkinkan scaling aplikasi klien dan backend secara terpisah |
+| Portabilitas | Satu basis kode Flutter menghasilkan build Android, iOS, dan web tanpa duplikasi logika presentasi |
 | Auditability | Setiap perubahan status rujukan dan rekam medis tercatat dengan waktu dan pengguna yang melakukan perubahan |
 | Kepatuhan | Struktur data dan alur rujukan mengacu pada ketentuan pelayanan klinik tipe A serta kebutuhan pelaporan ke dinas kesehatan |
 
@@ -196,4 +197,6 @@ di `lib/src/core/access/module_registry.dart`.
 | Fase 1 | Direktori fasilitas rujukan + pencatatan rujukan keluar manual | ✅ Selesai |
 | Fase 2 | Rujukan masuk, pelacakan status, notifikasi internal | ✅ Selesai |
 | Fase 3 | Cetak surat rujukan PDF, laporan rujukan + modul penunjang tipe A (radiologi, pengadaan, ICD, informed consent, kas, peringatan) | ✅ Selesai |
+| Fase 3.5 | Migrasi presentation layer ke aplikasi mobile Flutter + penyederhanaan model peran menjadi 6 | ✅ Selesai |
 | Fase 4 (opsional) | Integrasi API SATUSEHAT/BPJS untuk rujukan elektronik | ⏳ Belum |
+| Fase 5 (opsional) | Portal pasien mandiri (jadwal, hasil, riwayat) | ⏳ Belum |

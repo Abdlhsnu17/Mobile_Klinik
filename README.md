@@ -38,8 +38,6 @@ Ruang lingkup pengembangan SIMKLAB meliputi:
 - Pusat peringatan (stok menipis, obat kedaluwarsa, dsb.)
 - Pengelolaan unggahan dokumen
 - Laporan operasional & klinis (termasuk laba-rugi)
-
-# Apps_Klinik
 - Jejak audit perubahan data
 - Manajemen pengguna dan hak akses
 
@@ -59,6 +57,8 @@ Data Layer (MySQL + JSON fallback + Redis cache opsional)
 
 Pendekatan ini memudahkan pengembangan, pemeliharaan, serta pengujian sistem secara terpisah. Pada implementasi saat ini, backend menggunakan MySQL sebagai penyimpanan utama, file JSON sebagai fallback/seed data lokal, dan Redis sebagai cache opsional bila tersedia.
 
+Target build yang tersedia pada repositori ini adalah **Android, iOS, dan web**. Target desktop (macOS/Windows/Linux) tidak disertakan.
+
 ## Struktur Direktori Utama
 
 ```text
@@ -70,6 +70,9 @@ Pendekatan ini memudahkan pengembangan, pemeliharaan, serta pengujian sistem sec
 ├── database/             # Schema referensi dan migrasi SQL
 ├── docker/               # Dockerfile dan Compose terpusat
 ├── docs/                 # Dokumentasi produk dan teknis
+│   ├── PRD.md            # Product Requirements Document
+│   ├── GAP-ANALYSIS.md   # Analisis gap & roadmap klinik tipe A
+│   └── BACKUP.md         # Prosedur backup & restore
 ├── ios/                  # Target build iOS (Flutter)
 ├── lib/                  # Source code aplikasi Flutter
 ├── packages/
@@ -164,34 +167,20 @@ Unit test aplikasi Flutter berada di folder `test/`.
 
 ## Modul yang Tersedia di Aplikasi
 
-Berdasarkan route backend dan halaman aplikasi Flutter yang ada, modul utama aplikasi ini meliputi:
+Menu aplikasi Flutter dikelompokkan menjadi enam seksi pada
+`lib/src/core/access/module_registry.dart`:
 
-- Dashboard
-- Login, registrasi, dan reset password
-- Manajemen pasien
-- Manajemen dokter
-- Manajemen layanan klinik
-- Jadwal dan antrian pasien (dengan triase)
-- Pemeriksaan dokter dan rekam medis
-- Hasil laboratorium
-- Radiologi (ronsen)
-- Manajemen obat, kartu stok, dan depo farmasi
-- Manajemen alat medis
-- Farmasi dan permintaan resep
-- Pengadaan (pemasok & purchase order)
-- Kode diagnosa/tindakan (ICD)
-- Persetujuan tindakan (informed consent)
-- Rawat inap, bed, dan visit dokter
-- Pembayaran, tagihan, dan kas (pengeluaran + tutup kasir)
-- Penjamin/asuransi dan klaim
-- Rujukan masuk/keluar dan direktori fasilitas
-- Komunikasi pasien dan survei kepuasan
-- Pusat peringatan
-- Unggahan dan manajemen dokumen
-- Laporan klinis dan keuangan (laba-rugi)
-- Jejak audit / riwayat aktivitas
-- Manajemen pengguna
-- Pengaturan klinik
+| Seksi | Modul |
+|---|---|
+| **Menu Utama** | Dashboard, Pendaftaran |
+| **Master Data** | Rekam Medic, Layanan Klinis, Kode Diagnosa (ICD-10/ICD-9-CM) |
+| **Layanan Medis** | Pemeriksaan, Rawat Inap, Laboratorium, Radiologi, Rujukan, Persetujuan Tindakan, Dokter |
+| **Farmasi** | Farmasi, Depo Farmasi, Kartu Stok, Pengadaan |
+| **Administrasi** | Pembayaran, Kas, Asuransi, Laporan |
+| **Manajemen Klinik** | Peringatan, Alat Medis, Komunikasi, Unggahan |
+| **Sistem** | Pengguna, Riwayat Aktivitas, Pengaturan |
+
+Di luar menu tersebut, aplikasi juga menyediakan alur autentikasi (login, registrasi, dan reset password) serta antrian pasien dengan triase.
 
 ## Endpoint Backend Utama
 
@@ -232,22 +221,21 @@ Endpoint sumber daya master lain (mis. `beds`, `expenses`, `cashier-closings`, `
 
 ## Hak Akses Pengguna
 
-Role yang digunakan pada aplikasi saat ini antara lain:
+Aplikasi menggunakan **6 role** yang didefinisikan pada `packages/types/index.ts`
+(`USER_ROLES`) dan `lib/src/models/user.dart` (`UserRole`):
 
-- `admin`
-- `admin-ruangan`
-- `dokter`
-- `bidan`
-- `perawat`
-- `apoteker`
-- `analis-lab`
-- `resepsionis`
-- `kasir`
-- `manajemen`
-- `pasien`
-- `super-admin`
+| Role | Label | Cakupan |
+|---|---|---|
+| `admin` | Administrator | Data master, pengguna, audit log, konfigurasi klinik |
+| `dokter` | Dokter | Pemeriksaan, rekam medis, rujukan, resep, visit rawat inap |
+| `bidan` | Bidan | Layanan kebidanan dan rekam medis terkait |
+| `perawat` | Perawat | Asuhan keperawatan, tanda vital, bed rawat inap |
+| `teknis` | Tenaga Teknis | Farmasi, laboratorium, radiologi, alat medis |
+| `umum` | Staf Umum | Pendaftaran, antrian, pembayaran, komunikasi pasien |
 
-Tidak semua menu tersedia untuk seluruh role. Aplikasi Flutter memfilter menu berdasarkan role pengguna yang sedang login (lihat `lib/src/core/access/`).
+Jabatan operasional yang lebih rinci dipetakan ke keenam role di atas — super-admin/admin-ruangan/manajemen → `admin`, apoteker/analis-lab → `teknis`, resepsionis/kasir/pasien → `umum` (lihat `apps/backend/src/config/collectionPermissions.ts`).
+
+Tidak semua menu tersedia untuk seluruh role. Aplikasi Flutter memfilter menu berdasarkan role pengguna yang sedang login (lihat `lib/src/core/access/role_access.dart` dan `module_registry.dart`), sedangkan backend menegakkan hak akses per koleksi lewat `collectionPermissions.ts`.
 
 ## Teknologi yang Digunakan
 
@@ -386,7 +374,7 @@ Secara umum, kode aplikasi ini dibangun dengan pola berikut:
 - Aplikasi Flutter menangani navigasi halaman, form input, dashboard, dan interaksi pengguna.
 - Aplikasi Flutter menggunakan HTTP client di `lib/src/core/api/` untuk berkomunikasi dengan backend melalui endpoint `/api`.
 - Backend Express memisahkan routing, controller, dan service agar logika bisnis tidak tercampur dengan handler HTTP.
-- Registrasi publik membuat akun `pasien`; pembuatan dan perubahan akun petugas dilakukan oleh admin melalui modul pengguna.
+- Registrasi publik membuat akun berperan `umum`; peningkatan peran serta pembuatan dan perubahan akun petugas dilakukan oleh `admin` melalui modul pengguna.
 - Data utama diupayakan tersimpan ke MySQL, lalu dicache ke Redis bila tersedia.
 - Backend juga menyimpan backup/fallback data ke file JSON dalam `apps/backend/src/data`.
 - Dokumen diunggah ke folder `apps/backend/uploads` melalui endpoint dokumen khusus dengan validasi tipe file.
