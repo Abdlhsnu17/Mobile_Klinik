@@ -72,7 +72,6 @@ Pendekatan ini memudahkan pengembangan, pemeliharaan, serta pengujian sistem sec
 ├── docs/                 # Dokumentasi produk dan teknis
 ├── ios/                  # Target build iOS (Flutter)
 ├── lib/                  # Source code aplikasi Flutter
-├── macos/                # Target build macOS (Flutter)
 ├── packages/
 │   ├── config/           # Konfigurasi bersama (TypeScript)
 │   ├── database/         # Client MySQL bersama

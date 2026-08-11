@@ -4,9 +4,14 @@
 | | |
 |---|---|
 | **Dokumen** | PRD SIMKLAB |
-| **Versi** | 1.1 |
-| **Tanggal** | 24 Juli 2026 |
-| **Status** | Fase 1–3 terimplementasi |
+| **Versi** | 1.2 |
+| **Tanggal** | 11 Agustus 2026 |
+| **Status** | Fase 1–3 terimplementasi; presentation layer bermigrasi ke aplikasi mobile Flutter |
+
+> **Perubahan pada v1.2:** menyesuaikan dokumen dengan hasil refactor struktur proyek —
+> (a) presentation layer berpindah dari frontend web Next.js ke **aplikasi mobile Flutter**,
+> dan (b) model peran disederhanakan dari 12 peran konseptual menjadi **6 peran teknis**
+> yang benar-benar dikenali sistem.
 
 ---
 
@@ -27,20 +32,37 @@ SIMKLAB (Sistem Informasi Manajemen Klinik Abdi) saat ini sudah mengimplementasi
 
 ## 3. Target Pengguna & Peran (Role)
 
+Sistem mengenali **6 peran teknis** (lihat `USER_ROLES` di `packages/types/index.ts` dan
+`UserRole` di `lib/src/models/user.dart`). Peran jabatan klinik yang lebih rinci dipetakan
+ke salah satu dari enam peran ini agar matriks hak akses tetap sederhana dan dapat diuji.
+
 | Role | Deskripsi Singkat |
 |---|---|
-| `super-admin` | Kontrol penuh sistem, konfigurasi klinik, manajemen seluruh pengguna |
-| `admin` | Administrasi umum klinik, pengelolaan data master |
-| `admin-ruangan` | Pengelolaan ruangan, bed, dan operasional rawat inap |
-| `dokter` | Pemeriksaan, rekam medis, penerbitan rujukan, resep |
-| `bidan` | Layanan kebidanan, rekam medis terkait |
-| `perawat` | Asuhan keperawatan, visit rawat inap, tanda vital |
-| `apoteker` | Pengelolaan farmasi dan permintaan resep |
-| `analis-lab` | Input dan verifikasi hasil laboratorium |
-| `resepsionis` | Pendaftaran pasien, antrian, penerimaan rujukan masuk |
-| `kasir` | Transaksi pembayaran dan billing |
-| `manajemen` | Akses laporan dan dashboard manajerial |
-| `pasien` | Akses portal pasien (jadwal, hasil, riwayat) terbatas |
+| `admin` | Kontrol penuh sistem, konfigurasi klinik, data master, manajemen pengguna, audit log |
+| `dokter` | Pemeriksaan, rekam medis, penerbitan rujukan, resep, visit rawat inap |
+| `bidan` | Layanan kebidanan dan rekam medis terkait |
+| `perawat` | Asuhan keperawatan, visit rawat inap, tanda vital, pengelolaan bed |
+| `teknis` | Tenaga teknis penunjang: farmasi, laboratorium, radiologi, alat medis |
+| `umum` | Staf umum non-klinis: pendaftaran, antrian, pembayaran, komunikasi pasien |
+
+### 3.1 Pemetaan Jabatan Klinik ke Peran Teknis
+
+| Jabatan operasional | Peran teknis |
+|---|---|
+| Super admin, admin ruangan, manajemen | `admin` |
+| Dokter | `dokter` |
+| Bidan | `bidan` |
+| Perawat | `perawat` |
+| Apoteker, analis laboratorium, radiografer | `teknis` |
+| Resepsionis, kasir, pasien | `umum` |
+
+Registrasi publik melalui `/api/auth/register` selalu membuat akun berperan `umum`;
+peningkatan peran hanya dapat dilakukan `admin` lewat modul Pengguna.
+
+> **Catatan implementasi:** seed data `apps/backend/src/data/users.json` masih memuat nilai
+> peran lama (`super-admin`, `admin-ruangan`). Nilai tersebut tidak dikenali enum peran dan
+> akan jatuh ke `umum` saat di-parse aplikasi Flutter, sehingga perlu dinormalisasi ke
+> `admin` pada pembersihan data berikutnya.
 
 ## 4. Ruang Lingkup
 
@@ -77,10 +99,11 @@ SIMKLAB (Sistem Informasi Manajemen Klinik Abdi) saat ini sudah mengimplementasi
 - Integrasi langsung real-time dengan SATUSEHAT/BPJS (fase berikutnya, disiapkan sebagai ekstensi API)
 - Rekam medis elektronik lintas fasilitas (interoperabilitas nasional)
 - Modul billing asuransi otomatis penuh (klaim elektronik)
+- **Portal pasien mandiri** — peran `pasien` tidak lagi menjadi peran tersendiri setelah penyederhanaan model peran; akses pasien dipetakan ke `umum` dan portal self-service ditunda ke fase lanjutan (lihat `docs/GAP-ANALYSIS.md` gap #3)
 
 ## 5. Kebutuhan Fungsional
 
-### 5.1 Modul Rujukan (Baru)
+### 5.1 Modul Rujukan (Terimplementasi)
 
 | ID | Kebutuhan |
 |---|---|
@@ -121,17 +144,25 @@ SIMKLAB (Sistem Informasi Manajemen Klinik Abdi) saat ini sudah mengimplementasi
 | Auditability | Setiap perubahan status rujukan dan rekam medis tercatat dengan waktu dan pengguna yang melakukan perubahan |
 | Kepatuhan | Struktur data dan alur rujukan mengacu pada ketentuan pelayanan klinik tipe A serta kebutuhan pelaporan ke dinas kesehatan |
 
-## 7. Arsitektur Sistem (Existing, Tidak Berubah)
+## 7. Arsitektur Sistem
+
+Arsitektur tetap *three-tier*, namun presentation layer kini berupa **aplikasi mobile
+Flutter** (target build Android, iOS, dan web) menggantikan frontend web Next.js:
 
 ```
-Presentation Layer (Frontend - Next.js)
-            │
-Application Layer (Backend API - Node.js & Express)
+Presentation Layer (Aplikasi Mobile - Flutter/Dart)
+            │  REST /api
+Application Layer (Backend API - Node.js & Express + TypeScript)
             │
 Data Layer (MySQL + JSON fallback + Redis cache opsional)
 ```
 
-Modul rujukan mengikuti pola arsitektur yang sama: route baru `/api/referrals` di backend, service dan model rujukan, serta halaman baru `rujukan` di frontend.
+Application dan data layer tidak berubah — kontrak REST `/api` yang sama dipakai ulang
+oleh aplikasi Flutter, sehingga migrasi presentation layer tidak menyentuh logika bisnis.
+
+Modul rujukan mengikuti pola arsitektur yang sama: route `/api/referrals` di backend,
+service dan model rujukan, serta layar `/rujukan` pada aplikasi Flutter yang didaftarkan
+di `lib/src/core/access/module_registry.dart`.
 
 ## 8. Alur Utama (User Flow) — Rujukan Keluar
 
