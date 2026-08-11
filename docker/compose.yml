@@ -93,8 +93,8 @@ services:
       SMS_GATEWAY_URL: ${SMS_GATEWAY_URL:-}
       SMS_GATEWAY_TOKEN: ${SMS_GATEWAY_TOKEN:-}
       NOTIFICATION_POLL_INTERVAL_MS: ${NOTIFICATION_POLL_INTERVAL_MS:-30000}
-    expose:
-      - "4004"
+    ports:
+      - "${BIND_ADDRESS:-127.0.0.1}:${API_PORT:-4004}:4004"
     volumes:
       - backend_uploads:/app/apps/backend/uploads
     depends_on:
@@ -104,30 +104,6 @@ services:
         condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:4004/health >/dev/null || exit 1"]
-      interval: 10s
-      timeout: 5s
-      start_period: 30s
-      retries: 10
-
-  frontend:
-    <<: *service-defaults
-    build:
-      context: ..
-      dockerfile: docker/frontend.Dockerfile
-      args:
-        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-/api}
-        NEXT_PUBLIC_REALTIME_URL: ${NEXT_PUBLIC_REALTIME_URL:-}
-        BACKEND_INTERNAL_URL: http://backend:4004
-    environment:
-      NODE_ENV: production
-      BACKEND_INTERNAL_URL: http://backend:4004
-    ports:
-      - "${BIND_ADDRESS:-127.0.0.1}:${APP_PORT:-3001}:3000"
-    depends_on:
-      backend:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000 >/dev/null || exit 1"]
       interval: 10s
       timeout: 5s
       start_period: 30s

@@ -4,11 +4,9 @@ WORKDIR /app
 
 COPY package.json package-lock.json ./
 COPY apps/backend/package.json apps/backend/package.json
-COPY apps/frontend/package.json apps/frontend/package.json
 COPY packages/config/package.json packages/config/package.json
 COPY packages/database/package.json packages/database/package.json
 COPY packages/types/package.json packages/types/package.json
-COPY packages/utils/package.json packages/utils/package.json
 RUN npm ci --workspace @sistem-klinik/backend --include-workspace-root
 
 FROM dependencies AS build
@@ -18,7 +16,6 @@ COPY apps/backend/src apps/backend/src
 COPY packages packages
 RUN npm run build --workspace @sistem-klinik/config \
   && npm run build --workspace @sistem-klinik/types \
-  && npm run build --workspace @sistem-klinik/utils \
   && npm run build --workspace @sistem-klinik/database
 RUN npm run build --workspace @sistem-klinik/backend
 
@@ -29,11 +26,9 @@ ENV NODE_ENV=production
 
 COPY package.json package-lock.json ./
 COPY apps/backend/package.json apps/backend/package.json
-COPY apps/frontend/package.json apps/frontend/package.json
 COPY packages/config/package.json packages/config/package.json
 COPY packages/database/package.json packages/database/package.json
 COPY packages/types/package.json packages/types/package.json
-COPY packages/utils/package.json packages/utils/package.json
 RUN npm ci --omit=dev --workspace @sistem-klinik/backend --include-workspace-root \
   && npm cache clean --force
 
@@ -42,7 +37,6 @@ COPY --from=build --chown=node:node /app/apps/backend/dist apps/backend/dist
 COPY --from=build --chown=node:node /app/packages/config/dist packages/config/dist
 COPY --from=build --chown=node:node /app/packages/database/dist packages/database/dist
 COPY --from=build --chown=node:node /app/packages/types/dist packages/types/dist
-COPY --from=build --chown=node:node /app/packages/utils/dist packages/utils/dist
 COPY --chown=node:node apps/backend/src/data apps/backend/dist/data
 RUN mkdir -p apps/backend/uploads && chown node:node apps/backend/uploads
 

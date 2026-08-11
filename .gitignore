@@ -45,9 +45,3 @@ app.*.map.json
 /android/app/release
 node_modules
 
-# Next.js (apps/frontend)
-.next/
-out/
-
-# Local secrets (gunakan selenium.env.example.json sebagai template)
-selenium.env.json

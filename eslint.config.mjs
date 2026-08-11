@@ -1,37 +1,23 @@
 import tseslint from "@typescript-eslint/eslint-plugin"
 import tsParser from "@typescript-eslint/parser"
 
-const browserGlobals = {
-  Blob: "readonly",
-  console: "readonly",
-  document: "readonly",
-  fetch: "readonly",
-  File: "readonly",
-  FormData: "readonly",
-  localStorage: "readonly",
-  navigator: "readonly",
-  setInterval: "readonly",
-  clearInterval: "readonly",
-  setTimeout: "readonly",
-  URL: "readonly",
-  window: "readonly",
-}
-
 const nodeGlobals = {
   Buffer: "readonly",
+  clearInterval: "readonly",
   __dirname: "readonly",
   console: "readonly",
   fetch: "readonly",
   module: "readonly",
   process: "readonly",
   require: "readonly",
+  setInterval: "readonly",
   setTimeout: "readonly",
+  URL: "readonly",
 }
 
 export default [
   {
     ignores: [
-      "**/.next/**",
       "**/dist/**",
       "**/node_modules/**",
       "**/coverage/**",
@@ -40,18 +26,14 @@ export default [
     ],
   },
   {
-    files: ["apps/backend/**/*.ts", "apps/frontend/**/*.{ts,tsx}", "packages/**/*.ts"],
+    files: ["apps/backend/**/*.ts", "packages/**/*.ts"],
     languageOptions: {
       parser: tsParser,
       parserOptions: {
-        ecmaFeatures: { jsx: true },
         ecmaVersion: "latest",
         sourceType: "module",
       },
-      globals: {
-        ...browserGlobals,
-        ...nodeGlobals,
-      },
+      globals: nodeGlobals,
     },
     plugins: {
       "@typescript-eslint": tseslint,

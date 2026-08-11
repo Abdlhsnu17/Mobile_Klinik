@@ -1,8 +1,8 @@
 # Deskripsi dan Struktur Aplikasi SIMKLAB
 
-SIMKLAB (Sistem Informasi Manajemen Klinik Abdi) merupakan aplikasi berbasis web yang dikembangkan untuk mendukung pengelolaan layanan klinik secara terintegrasi, terstruktur, dan terdokumentasi. Sistem ini dirancang sebagai solusi atas kebutuhan digitalisasi proses administrasi klinik, mulai dari pengelolaan data pasien, dokter, layanan, antrian, rekam medis, laboratorium, farmasi, rawat inap, pembayaran, hingga dokumen pendukung.
+SIMKLAB (Sistem Informasi Manajemen Klinik Abdi) merupakan aplikasi mobile (Flutter) dengan backend REST API yang dikembangkan untuk mendukung pengelolaan layanan klinik secara terintegrasi, terstruktur, dan terdokumentasi. Sistem ini dirancang sebagai solusi atas kebutuhan digitalisasi proses administrasi klinik, mulai dari pengelolaan data pasien, dokter, layanan, antrian, rekam medis, laboratorium, farmasi, rawat inap, pembayaran, hingga dokumen pendukung.
 
-Pengembangan SIMKLAB menggunakan pendekatan pengembangan perangkat lunak terstruktur, dengan pemisahan tanggung jawab antara frontend, backend, dan database dalam satu monorepo. Dengan pendekatan ini, sistem lebih mudah dikembangkan, diuji, dan dipelihara secara bertahap sesuai kebutuhan operasional klinik.
+Pengembangan SIMKLAB menggunakan pendekatan pengembangan perangkat lunak terstruktur, dengan pemisahan tanggung jawab antara aplikasi mobile (Flutter), backend (Node.js/Express), dan database dalam satu repositori. Dengan pendekatan ini, sistem lebih mudah dikembangkan, diuji, dan dipelihara secara bertahap sesuai kebutuhan operasional klinik.
 
 ## Tujuan Pengembangan Sistem
 
@@ -13,7 +13,7 @@ Tujuan dari pengembangan sistem SIMKLAB adalah sebagai berikut:
 - Memudahkan pencatatan hasil pemeriksaan (rekam medis), hasil laboratorium, serta permintaan farmasi.
 - Mendukung pengelolaan data dokter, layanan, alat medis, dan obat secara terstruktur.
 - Meningkatkan akurasi data, efisiensi kerja, dan keterlacakan aktivitas operasional klinik.
-- Menyediakan aplikasi berbasis web yang dapat diakses sesuai hak akses masing-masing pengguna.
+- Menyediakan aplikasi mobile yang dapat diakses sesuai hak akses masing-masing pengguna.
 
 ## Ruang Lingkup Sistem
 
@@ -43,14 +43,14 @@ Ruang lingkup pengembangan SIMKLAB meliputi:
 - Jejak audit perubahan data
 - Manajemen pengguna dan hak akses
 
-Sistem ini berfungsi sebagai aplikasi operasional klinik berbasis web yang memusatkan data layanan dalam satu sistem agar proses administrasi dan pelayanan lebih konsisten.
+Sistem ini berfungsi sebagai aplikasi operasional klinik berbasis mobile yang memusatkan data layanan dalam satu sistem agar proses administrasi dan pelayanan lebih konsisten.
 
 ## Arsitektur Sistem
 
 SIMKLAB menggunakan arsitektur three-tier architecture:
 
 ```text
-Presentation Layer (Frontend - Next.js)
+Presentation Layer (Aplikasi Mobile - Flutter)
             │
 Application Layer (Backend API - Node.js & Express)
             │
@@ -63,28 +63,26 @@ Pendekatan ini memudahkan pengembangan, pemeliharaan, serta pengujian sistem sec
 
 ```text
 .
-├── .github/              # Workflow CI/CD
+├── android/              # Target build Android (Flutter)
 ├── apps/
-│   ├── backend/          # REST API Express + TypeScript
-│   └── frontend/         # Aplikasi web Next.js
+│   └── backend/          # REST API Express + TypeScript
+├── assets/               # Aset aplikasi Flutter
 ├── database/             # Schema referensi dan migrasi SQL
 ├── docker/               # Dockerfile dan Compose terpusat
 ├── docs/                 # Dokumentasi produk dan teknis
+├── ios/                  # Target build iOS (Flutter)
+├── lib/                  # Source code aplikasi Flutter
+├── macos/                # Target build macOS (Flutter)
 ├── packages/
-│   ├── config/           # Konfigurasi bersama
+│   ├── config/           # Konfigurasi bersama (TypeScript)
 │   ├── database/         # Client MySQL bersama
-│   ├── types/            # Tipe TypeScript bersama
-│   └── utils/            # Utilitas bersama
-├── docs/reports/         # Hasil laporan yang dibuat secara lokal
+│   └── types/            # Tipe TypeScript bersama
 ├── scripts/              # Script otomasi repository
-├── .dockerignore
-├── .env.example
-├── .gitignore
-├── .nvmrc
+├── test/                 # Unit test Flutter
+├── web/                  # Target build web (Flutter)
+├── analysis_options.yaml
 ├── package.json
-├── package-lock.json
-├── railway.json
-├── tsconfig.json
+├── pubspec.yaml
 └── README.md
 ```
 
@@ -122,30 +120,32 @@ apps/backend/
 - `types/`: Definisi struktur data utama seperti `Patient`, `Doctor`, `MedicalRecord`, `Medicine`, `PaymentRecord`, dan lainnya.
 - `index.ts`: File utama untuk bootstrap server Express.
 
-### 2. `apps/frontend/`
+### 2. `lib/` (Aplikasi Flutter)
 
-**Fungsi:** Menyediakan antarmuka pengguna berbasis web dengan Next.js App Router.
+**Fungsi:** Menyediakan antarmuka pengguna mobile yang mengonsumsi REST API backend.
 
 **Struktur:**
 
 ```text
-apps/frontend/
-├── app/                # Halaman, layout, dan route aplikasi
-├── components/         # Komponen UI reusable
-├── hooks/              # Custom hooks frontend
-├── lib/                # API client, auth helper, utilitas, brand config
-├── public/             # Asset statis
-├── scripts/            # Script pendukung frontend
-├── styles/             # Style tambahan
-├── package.json
-└── tsconfig.json
+lib/
+├── main.dart           # Entry point aplikasi Flutter
+└── src/
+    ├── app.dart        # Root widget, tema, dan routing aplikasi
+    ├── core/
+    │   ├── access/     # Aturan hak akses per role dan registri modul
+    │   ├── api/        # HTTP client ke backend
+    │   ├── auth/       # State dan helper autentikasi
+    │   ├── config/     # Konfigurasi aplikasi (base URL API, dsb.)
+    │   ├── router/     # Definisi rute halaman
+    │   ├── theme/      # Tema dan gaya visual
+    │   └── utils/      # Helper utilitas umum
+    ├── data/           # Repository akses koleksi data backend
+    ├── features/       # Modul layar: auth, dashboard, antrian, rekam medis,
+    │                   # farmasi, kasir, laporan, dokumen, peringatan, dll.
+    └── shared/         # Widget reusable lintas modul
 ```
 
-- `app/`: Berisi halaman utama seperti login, dashboard, pasien, dokter, antrian, rekam medis, laboratorium, obat, farmasi, rawat inap, pembayaran, asuransi, komunikasi, laporan, pengaturan, dan unggahan.
-- `components/`: Komponen UI dan layout seperti sidebar, header, form, dialog, tabel, dan komponen `shadcn/ui`.
-- `hooks/`: Custom hooks untuk interaksi data dan utilitas UI.
-- `lib/`: API client, helper autentikasi, type frontend, dan utility functions.
-- `public/`: Logo, ilustrasi, dan aset visual lain.
+Unit test aplikasi Flutter berada di folder `test/`.
 
 ### 3. `packages/database/`
 
@@ -157,14 +157,15 @@ apps/frontend/
 
 ### 4. File Konfigurasi Root
 
-- `package.json`: Konfigurasi workspace monorepo dan script utama.
+- `package.json`: Konfigurasi workspace NPM (backend + packages) dan script utama.
 - `package-lock.json`: Lockfile dependensi NPM.
-- `tsconfig.json`: Konfigurasi TypeScript root.
+- `pubspec.yaml`: Dependensi dan konfigurasi aplikasi Flutter.
+- `analysis_options.yaml`: Aturan lint Dart/Flutter.
 - `README.md`: Dokumentasi proyek.
 
 ## Modul yang Tersedia di Aplikasi
 
-Berdasarkan route backend dan halaman frontend yang ada, modul utama aplikasi ini meliputi:
+Berdasarkan route backend dan halaman aplikasi Flutter yang ada, modul utama aplikasi ini meliputi:
 
 - Dashboard
 - Login, registrasi, dan reset password
@@ -247,13 +248,12 @@ Role yang digunakan pada aplikasi saat ini antara lain:
 - `pasien`
 - `super-admin`
 
-Tidak semua menu tersedia untuk seluruh role. Sidebar frontend memfilter menu berdasarkan role pengguna yang sedang login.
+Tidak semua menu tersedia untuk seluruh role. Aplikasi Flutter memfilter menu berdasarkan role pengguna yang sedang login (lihat `lib/src/core/access/`).
 
 ## Teknologi yang Digunakan
 
 - Backend: Node.js, Express, TypeScript
-- Frontend: Next.js, React, TypeScript
-- UI: Tailwind CSS, Radix UI, shadcn/ui, Lucide Icons
+- Aplikasi Mobile: Flutter, Dart
 - Basis Data: MySQL
 - Cache: Redis (opsional)
 - Upload file: Multer
@@ -266,8 +266,9 @@ Tidak semua menu tersedia untuk seluruh role. Sidebar frontend memfilter menu be
 
 Pastikan perangkat sudah memiliki:
 
-- Node.js 18 atau lebih baru
+- Node.js 20 atau lebih baru
 - NPM
+- Flutter SDK (untuk menjalankan aplikasi mobile)
 - MySQL 8.x atau MariaDB
 - Redis (opsional)
 - Docker dan Docker Compose (opsional, untuk setup lokal cepat)
@@ -275,17 +276,17 @@ Pastikan perangkat sudah memiliki:
 ### 2. Instalasi Dependensi
 
 ```bash
-npm install
+npm install       # dependensi backend dan packages
+flutter pub get   # dependensi aplikasi Flutter
 ```
 
-Root project sudah menggunakan NPM workspaces untuk `backend`, `frontend`, dan `db`.
+Root project menggunakan NPM workspaces untuk `apps/backend` dan `packages/*`.
 
 ### 3. Konfigurasi Environment
 
 Repo ini sudah memiliki file environment lokal:
 
 - `apps/backend/.env`
-- `apps/frontend/.env.local`
 
 Nilai penting yang digunakan saat ini:
 
@@ -303,10 +304,8 @@ REDIS_HOST=127.0.0.1
 REDIS_PORT=6379
 ```
 
-```env
-# apps/frontend/.env.local
-NEXT_PUBLIC_API_URL=http://localhost:4004
-```
+Base URL API untuk aplikasi Flutter dikonfigurasi lewat `lib/src/core/config/`
+(atau `--dart-define`) sehingga mengarah ke `http://localhost:4004`.
 
 Jika menggunakan MySQL dari Docker Compose bawaan, backend memakai user `root` tanpa password.
 
@@ -322,27 +321,16 @@ Backend berjalan secara default di:
 http://localhost:4004
 ```
 
-### 5. Menjalankan Frontend
+### 5. Menjalankan Aplikasi Flutter
 
 ```bash
-npm run dev:frontend
+flutter run
 ```
 
-Frontend berjalan di:
-
-```text
-http://localhost:3000
-```
-
-### 6. Menjalankan Secara Manual per Package
+### 6. Menjalankan Backend Secara Manual
 
 ```bash
 cd apps/backend
-npm run dev
-```
-
-```bash
-cd apps/frontend
 npm run dev
 ```
 
@@ -378,74 +366,49 @@ Jika ingin menjalankan MySQL lokal sementara beserta phpMyAdmin, gunakan file `d
 Di root project, script utama yang tersedia adalah:
 
 ```bash
-npm run dev
-npm run dev:frontend
+npm run dev            # menjalankan backend mode development
 npm run dev:backend
-npm run build
+npm run build          # build packages + backend
 npm run build:backend
-npm run build:frontend
-npm run start:frontend
+npm run start          # menjalankan backend hasil build
 npm run lint
-npm run lint:frontend
-npm test
+npm test               # test backend (Jest)
 npm run docker:up
 npm run docker:dev
 npm run docker:down
 ```
 
-Catatan: root project sudah menyediakan script build backend dan frontend. Test package tetap dijalankan dari package masing-masing, misalnya `npm test --prefix apps/backend` dan `npm test --prefix apps/frontend`.
+Test aplikasi Flutter dijalankan dengan `flutter test`.
 
 ## Ringkasan Implementasi Kode
 
 Secara umum, kode aplikasi ini dibangun dengan pola berikut:
 
-- Frontend Next.js menangani navigasi halaman, form input, dashboard, dan interaksi pengguna.
-- Frontend menggunakan helper `api-client.ts` untuk berkomunikasi dengan backend melalui endpoint `/api`.
+- Aplikasi Flutter menangani navigasi halaman, form input, dashboard, dan interaksi pengguna.
+- Aplikasi Flutter menggunakan HTTP client di `lib/src/core/api/` untuk berkomunikasi dengan backend melalui endpoint `/api`.
 - Backend Express memisahkan routing, controller, dan service agar logika bisnis tidak tercampur dengan handler HTTP.
 - Registrasi publik membuat akun `pasien`; pembuatan dan perubahan akun petugas dilakukan oleh admin melalui modul pengguna.
 - Data utama diupayakan tersimpan ke MySQL, lalu dicache ke Redis bila tersedia.
 - Backend juga menyimpan backup/fallback data ke file JSON dalam `apps/backend/src/data`.
 - Dokumen diunggah ke folder `apps/backend/uploads` melalui endpoint dokumen khusus dengan validasi tipe file.
 
-## Ringkasan Struktur Halaman Frontend
+## Ringkasan Modul Aplikasi Flutter
 
-Halaman utama yang tersedia pada folder `apps/frontend/app` meliputi:
+Modul layar utama yang tersedia pada folder `lib/src/features` meliputi:
 
+- `auth` (login, registrasi, lupa password)
 - `dashboard`
-- `login`
-- `daftar`
-- `lupa-password`
-- `pasien`
-- `dokter`
-- `layanan-klinis`
-- `antrian`
-- `pemeriksaan`
-- `laboratorium`
-- `radiologi`
-- `alat-medis`
-- `farmasi`
-- `depo-farmasi`
-- `kartu-stok`
-- `pengadaan`
-- `kode-diagnosa`
-- `persetujuan-tindakan`
-- `rawat-inap`
-- `pembayaran`
-- `kas`
-- `asuransi`
-- `rujukan`
-- `komunikasi`
-- `peringatan`
-- `laporan`
-- `unggahan`
-- `audit-log`
-- `pengguna`
-- `pengaturan`
+- `queue` (antrian)
+- `medical_records` (pemeriksaan dan rekam medis)
+- `pharmacy` (farmasi)
+- `cashier` (pembayaran dan kas)
+- `documents` (unggahan dokumen)
+- `alerts` (pusat peringatan)
+- `reports` (laporan)
+- `settings` (pengaturan)
+- `modules` (modul master data generik)
+- `shell` (kerangka navigasi aplikasi)
 
 ## Kesimpulan
 
-SIMKL merupakan aplikasi monorepo berbasis web untuk mendukung operasional klinik secara terintegrasi. Dengan pemisahan frontend, backend, dan database, sistem ini dirancang modular sehingga lebih mudah dikembangkan, diuji, dan dipelihara untuk kebutuhan layanan klinik yang terus berkembang.
-# Mobile_Klinik
-# Mobile_Klinik
-# Mobile_Klinik
-# Mobile_Klinik
+SIMKLAB merupakan aplikasi klinik dengan aplikasi mobile Flutter dan backend REST API Express. Dengan pemisahan aplikasi mobile, backend, dan database, sistem ini dirancang modular sehingga lebih mudah dikembangkan, diuji, dan dipelihara untuk kebutuhan layanan klinik yang terus berkembang.
