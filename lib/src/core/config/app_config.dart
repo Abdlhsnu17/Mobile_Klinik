@@ -10,7 +10,7 @@ import 'package:flutter/foundation.dart';
 class AppConfig {
   const AppConfig._();
 
-  static const String appName = 'SIMKLAB';
+  static const String appName = 'AbdiCareKlinik';
   static const String appTagline = 'Sistem Informasi Klinik';
   static const String brandCopyright = '© 2026. Hak cipta dilindungi.';
 

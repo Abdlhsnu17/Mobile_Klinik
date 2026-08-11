@@ -109,7 +109,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               autocorrect: false,
               textInputAction: TextInputAction.next,
               decoration: const InputDecoration(
-                labelText: 'Username atau Email',
                 hintText: 'Masukkan username atau email',
                 prefixIcon: Icon(Icons.person_outline),
               ),
@@ -125,7 +124,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               textInputAction: TextInputAction.done,
               onFieldSubmitted: (_) => _submit(),
               decoration: InputDecoration(
-                labelText: 'Password',
                 hintText: 'Masukkan password',
                 prefixIcon: const Icon(Icons.lock_outline),
                 suffixIcon: IconButton(

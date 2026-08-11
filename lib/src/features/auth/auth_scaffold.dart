@@ -54,32 +54,37 @@ class AuthScaffold extends StatelessWidget {
     );
 
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/images/background.png'),
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: Container(
-          // Lapisan gelap tipis menjaga kontras teks di atas foto latar.
-          color: Colors.black.withValues(alpha: 0.35),
-          child: SafeArea(
+      body: Stack(
+        children: [
+          const _AuthBackdrop(),
+          SafeArea(
             child: LayoutBuilder(
               builder: (context, constraints) {
+                final horizontalPadding = constraints.maxWidth >= 900 ? 40.0 : 16.0;
+
                 return SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+                  padding: EdgeInsets.fromLTRB(
+                    horizontalPadding,
+                    20,
+                    horizontalPadding,
+                    20,
+                  ),
                   child: ConstrainedBox(
                     constraints:
-                        BoxConstraints(minHeight: constraints.maxHeight),
+                        BoxConstraints(minHeight: constraints.maxHeight - 40),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         ConstrainedBox(
                           constraints: const BoxConstraints(maxWidth: 560),
-                          child: Theme(
-                            data: theme.copyWith(inputDecorationTheme: inputTheme),
-                            child: child,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            child: Theme(
+                              data: theme.copyWith(
+                                inputDecorationTheme: inputTheme,
+                              ),
+                              child: child,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -97,7 +102,130 @@ class AuthScaffold extends StatelessWidget {
               },
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AuthBackdrop extends StatelessWidget {
+  const _AuthBackdrop();
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: isDark
+              ? const [
+                  Color(0xFF07111F),
+                  Color(0xFF0A2433),
+                  Color(0xFF0F3C47),
+                ]
+              : const [
+                  Color(0xFFEAF6F7),
+                  Color(0xFFDDEFF1),
+                  Color(0xFFF7FAFC),
+                ],
         ),
+      ),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          const DecoratedBox(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/background.png'),
+                fit: BoxFit.cover,
+                opacity: 0.18,
+              ),
+            ),
+          ),
+          DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: RadialGradient(
+                center: const Alignment(-0.7, -0.8),
+                radius: 1.1,
+                colors: [
+                  const Color(0xFF00C3C7).withValues(alpha: 0.24),
+                  Colors.transparent,
+                ],
+              ),
+            ),
+          ),
+          DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: RadialGradient(
+                center: const Alignment(1.0, -0.3),
+                radius: 1.0,
+                colors: [
+                  const Color(0xFF00969F).withValues(alpha: 0.18),
+                  Colors.transparent,
+                ],
+              ),
+            ),
+          ),
+          Positioned(
+            left: -80,
+            top: 80,
+            child: _FloatingBlob(
+              size: 180,
+              color: const Color(0xFF00C3C7).withValues(alpha: 0.14),
+            ),
+          ),
+          Positioned(
+            right: -70,
+            bottom: 110,
+            child: _FloatingBlob(
+              size: 220,
+              color: const Color(0xFF00969F).withValues(alpha: 0.12),
+            ),
+          ),
+          Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.black.withValues(alpha: isDark ? 0.18 : 0.08),
+                    Colors.black.withValues(alpha: isDark ? 0.32 : 0.12),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FloatingBlob extends StatelessWidget {
+  const _FloatingBlob({required this.size, required this.color});
+
+  final double size;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: color,
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: color.withValues(alpha: 0.45),
+            blurRadius: 50,
+            spreadRadius: 8,
+          ),
+        ],
       ),
     );
   }

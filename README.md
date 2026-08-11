@@ -1,12 +1,12 @@
-# Deskripsi dan Struktur Aplikasi SIMKLAB
+# Deskripsi dan Struktur Aplikasi AbdiCareKlinik
 
-SIMKLAB (Sistem Informasi Manajemen Klinik Abdi) merupakan aplikasi mobile (Flutter) dengan backend REST API yang dikembangkan untuk mendukung pengelolaan layanan klinik secara terintegrasi, terstruktur, dan terdokumentasi. Sistem ini dirancang sebagai solusi atas kebutuhan digitalisasi proses administrasi klinik, mulai dari pengelolaan data pasien, dokter, layanan, antrian, rekam medis, laboratorium, farmasi, rawat inap, pembayaran, hingga dokumen pendukung.
+AbdiCareKlinik merupakan aplikasi mobile (Flutter) dengan backend REST API yang dikembangkan untuk mendukung pengelolaan layanan klinik secara terintegrasi, terstruktur, dan terdokumentasi. Sistem ini dirancang sebagai solusi atas kebutuhan digitalisasi proses administrasi klinik, mulai dari pengelolaan data pasien, dokter, layanan, antrian, rekam medis, laboratorium, farmasi, rawat inap, pembayaran, hingga dokumen pendukung.
 
-Pengembangan SIMKLAB menggunakan pendekatan pengembangan perangkat lunak terstruktur, dengan pemisahan tanggung jawab antara aplikasi mobile (Flutter), backend (Node.js/Express), dan database dalam satu repositori. Dengan pendekatan ini, sistem lebih mudah dikembangkan, diuji, dan dipelihara secara bertahap sesuai kebutuhan operasional klinik.
+Pengembangan AbdiCareKlinik menggunakan pendekatan pengembangan perangkat lunak terstruktur, dengan pemisahan tanggung jawab antara aplikasi mobile (Flutter), backend (Node.js/Express), dan database dalam satu repositori. Dengan pendekatan ini, sistem lebih mudah dikembangkan, diuji, dan dipelihara secara bertahap sesuai kebutuhan operasional klinik.
 
 ## Tujuan Pengembangan Sistem
 
-Tujuan dari pengembangan sistem SIMKLAB adalah sebagai berikut:
+Tujuan dari pengembangan sistem AbdiCareKlinik adalah sebagai berikut:
 
 - Menyediakan sistem informasi klinik yang terpusat dan mudah dikelola.
 - Mendukung proses pelayanan pasien dari pendaftaran hingga pembayaran secara digital.
@@ -17,7 +17,7 @@ Tujuan dari pengembangan sistem SIMKLAB adalah sebagai berikut:
 
 ## Ruang Lingkup Sistem
 
-Ruang lingkup pengembangan SIMKLAB meliputi:
+Ruang lingkup pengembangan AbdiCareKlinik meliputi:
 
 - Pengelolaan data pasien
 - Pengelolaan data dokter dan layanan klinik
@@ -45,7 +45,7 @@ Sistem ini berfungsi sebagai aplikasi operasional klinik berbasis mobile yang me
 
 ## Arsitektur Sistem
 
-SIMKLAB menggunakan arsitektur three-tier architecture:
+AbdiCareKlinik menggunakan arsitektur three-tier architecture:
 
 ```text
 Presentation Layer (Aplikasi Mobile - Flutter)
@@ -398,4 +398,4 @@ Modul layar utama yang tersedia pada folder `lib/src/features` meliputi:
 
 ## Kesimpulan
 
-SIMKLAB merupakan aplikasi klinik dengan aplikasi mobile Flutter dan backend REST API Express. Dengan pemisahan aplikasi mobile, backend, dan database, sistem ini dirancang modular sehingga lebih mudah dikembangkan, diuji, dan dipelihara untuk kebutuhan layanan klinik yang terus berkembang.
+AbdiCareKlinik merupakan aplikasi klinik dengan aplikasi mobile Flutter dan backend REST API Express. Dengan pemisahan aplikasi mobile, backend, dan database, sistem ini dirancang modular sehingga lebih mudah dikembangkan, diuji, dan dipelihara untuk kebutuhan layanan klinik yang terus berkembang.

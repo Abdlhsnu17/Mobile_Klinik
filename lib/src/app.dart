@@ -6,7 +6,7 @@ import 'core/providers.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 
-/// Akar aplikasi SIMKLAB.
+/// Akar aplikasi AbdiCareKlinik.
 class ClinicApp extends ConsumerWidget {
   const ClinicApp({super.key});
 

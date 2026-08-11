@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="flutter_application_mobile_apps_klinik"
+        android:label="AbdiCareKlinik"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
