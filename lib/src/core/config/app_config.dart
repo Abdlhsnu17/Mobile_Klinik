@@ -1,5 +1,3 @@
-import 'dart:io' show Platform;
-
 import 'package:flutter/foundation.dart';
 
 /// Konfigurasi runtime aplikasi.
@@ -44,11 +42,7 @@ class AppConfig {
   /// simulator iOS/desktop dapat memakai localhost apa adanya.
   static String _defaultDevHost() {
     if (kIsWeb) return 'localhost';
-    try {
-      if (Platform.isAndroid) return '10.0.2.2';
-    } catch (_) {
-      // Platform tidak tersedia (mis. lingkungan test) — pakai default.
-    }
+    if (defaultTargetPlatform == TargetPlatform.android) return '10.0.2.2';
     return 'localhost';
   }
 

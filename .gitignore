@@ -32,6 +32,7 @@ migrate_working_dir/
 .pub/
 /build/
 /coverage/
+**/dist/
 
 # Symbolication related
 app.*.symbols
@@ -45,3 +46,6 @@ app.*.map.json
 /android/app/release
 node_modules
 
+# Backend runtime uploads should not be committed.
+apps/backend/uploads/*
+!apps/backend/uploads/.gitkeep

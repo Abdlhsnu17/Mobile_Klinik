@@ -1,16 +1,14 @@
-import 'dart:io';
-
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:open_filex/open_filex.dart';
-import 'package:path_provider/path_provider.dart';
 
 import '../../core/providers.dart';
 import '../../core/utils/formatters.dart';
 import '../../core/utils/json_utils.dart';
 import '../../shared/widgets/common_widgets.dart';
+import 'document_opener.dart';
 
 /// Modul Unggahan (`/unggahan`) — penyimpanan dokumen operasional klinik.
 ///
@@ -49,9 +47,10 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
   }
 
   Future<void> _upload() async {
-    final picked = await FilePicker.platform.pickFiles(withData: false);
+    final picked = await FilePicker.platform.pickFiles(withData: kIsWeb);
     final file = picked?.files.singleOrNull;
-    if (file == null || file.path == null) return;
+    if (file == null) return;
+    if (!kIsWeb && file.path == null && file.bytes == null) return;
     if (!mounted) return;
 
     final details = await showDialog<_UploadDetails>(
@@ -61,8 +60,11 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
     if (details == null || !mounted) return;
 
     try {
+      final filePart = file.bytes != null
+          ? MultipartFile.fromBytes(file.bytes!, filename: file.name)
+          : MultipartFile.fromFile(file.path!, filename: file.name);
       final formData = FormData.fromMap({
-        'file': await MultipartFile.fromFile(file.path!, filename: file.name),
+        'file': filePart,
         'title': details.title,
         'category': details.category,
         if (details.description.isNotEmpty) 'description': details.description,
@@ -118,23 +120,13 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
       final bytes = await ref
           .read(apiClientProvider)
           .download('/documents/$id/download');
-
-      final directory = await getTemporaryDirectory();
       final fileName = asString(
         document['originalName'],
         fallback: asString(document['filename'], fallback: 'dokumen-$id'),
       );
-      final file = File('${directory.path}/$fileName');
-      await file.writeAsBytes(bytes, flush: true);
-
-      final result = await OpenFilex.open(file.path);
-      if (result.type != ResultType.done && mounted) {
-        showAppSnackBar(
-          context,
-          'Dokumen tersimpan di ${file.path}, tetapi tidak ada aplikasi yang dapat membukanya.',
-          isError: true,
-        );
-      }
+      await openDownloadedDocument(bytes, fileName: fileName);
+      if (!mounted) return;
+      showAppSnackBar(context, 'Dokumen siap dibuka.');
     } catch (error) {
       if (!mounted) return;
       showAppSnackBar(context, error.toString(), isError: true);
